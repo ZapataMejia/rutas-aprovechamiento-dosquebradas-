@@ -1,0 +1,115 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import { getSortedPosts } from '../../data/blog';
+const allPosts = getSortedPosts();
+---
+
+<Layout title="Artículos y consejos" description="Artículos sobre reciclaje, separación en la fuente y rutas de recolección en Dosquebradas.">
+  <div class="blog-page">
+    <header class="page-header">
+      <h1 class="page-title">Artículos y consejos</h1>
+      <p class="page-intro">Información sobre reciclaje, separación en la fuente y cómo usar las rutas en Dosquebradas.</p>
+    </header>
+
+    <div class="posts-grid" role="list">
+      {allPosts.map((post) => (
+        <article class="post-card card" role="listitem">
+          <a href={`/blog/${post.slug}`} class="post-card-link">
+            <div class="post-card-image-wrap">
+              <img
+                src={post.image}
+                alt={post.imageAlt}
+                width="800"
+                height="400"
+                class="post-card-image"
+                loading="lazy"
+              />
+            </div>
+            <div class="post-card-body">
+              <time class="post-date" datetime={post.date}>
+                {new Date(post.date).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </time>
+              <h2 class="post-card-title">{post.title}</h2>
+              <p class="post-card-excerpt">{post.excerpt}</p>
+              <span class="post-card-cta">Leer más</span>
+            </div>
+          </a>
+        </article>
+      ))}
+    </div>
+  </div>
+</Layout>
+
+<style>
+  .blog-page { padding: 0 0 3rem; }
+  .page-header { margin-bottom: 2rem; }
+  .page-title {
+    font-size: clamp(1.5rem, 3vw, 1.75rem);
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 0 0.35rem;
+    letter-spacing: -0.02em;
+  }
+  .page-intro { color: var(--text-muted); font-size: 0.9375rem; margin: 0; }
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+  .post-card {
+    padding: 0;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .post-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  .post-card-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+  }
+  .post-card-image-wrap {
+    aspect-ratio: 2 / 1;
+    overflow: hidden;
+    background: var(--bg);
+  }
+  .post-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+    filter: saturate(0.75) contrast(1.02);
+  }
+  .post-card:hover .post-card-image {
+    transform: scale(1.03);
+  }
+  .post-card-body { padding: 1.25rem 1.5rem; }
+  .post-date {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--accent-light);
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+  .post-card-title {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--primary);
+    margin: 0 0 0.5rem;
+    line-height: 1.35;
+  }
+  .post-card-excerpt {
+    font-size: 0.9375rem;
+    color: var(--text-muted);
+    margin: 0 0 0.75rem;
+    line-height: 1.5;
+  }
+  .post-card-cta {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--accent-light);
+  }
+  .post-card:hover .post-card-cta { text-decoration: underline; }
+</style>

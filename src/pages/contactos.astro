@@ -1,0 +1,49 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Contactos" description="Contacto de la secretaría y empresas de recolección de residuos aprovechables en Dosquebradas.">
+  <div class="contactos-page">
+    <header class="page-header">
+      <h1 class="page-title">Contactos</h1>
+      <p class="page-intro">Secretaría y empresas que operan las rutas de reciclaje.</p>
+    </header>
+
+    <section class="card bloque" aria-labelledby="sede-titulo">
+      <h2 id="sede-titulo" class="bloque-title">Sede principal</h2>
+      <p class="bloque-org"><strong>Desarrollo agropecuario y gestión ambiental</strong></p>
+      <p class="bloque-line">Dirección: Calle 42 N° 10B-26, Playa Rica Bosque, Dosquebradas.</p>
+      <p class="bloque-line">Teléfono: <a href="tel:+576063515333">(57) 606 3515333</a> – Extensión: 195.</p>
+    </section>
+
+    <section class="card bloque" aria-labelledby="empresas-titulo">
+      <h2 id="empresas-titulo" class="bloque-title">Empresas y operadores</h2>
+      <p class="bloque-text">Las rutas son operadas por diferentes empresas y recicladores. Para datos de contacto específicos, consulte con la secretaría.</p>
+      <ul class="lista-empresas">
+        <li><strong>Entorno Limpio</strong> – Operadores en el listado de rutas.</li>
+        <li><strong>Vitapланet</strong> – Horarios por barrio en Rutas.</li>
+        <li><strong>Punto Verde</strong> – Recicladores por macro ruta.</li>
+        <li><strong>SEA Eje Cafetero S.A.S E.S.P</strong> – Contacto directo vía secretaría.</li>
+      </ul>
+    </section>
+
+    <section class="card bloque" aria-labelledby="horario-titulo">
+      <h2 id="horario-titulo" class="bloque-title">Atención</h2>
+      <p class="bloque-text">Horarios de atención según disposición de la Alcaldía de Dosquebradas.</p>
+    </section>
+  </div>
+</Layout>
+
+<style>
+  .contactos-page { padding: 0 0 2rem; }
+  .page-header { margin-bottom: 1.5rem; }
+  .page-title { font-size: clamp(1.375rem, 3vw, 1.75rem); font-weight: 700; color: var(--primary); margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+  .page-intro { color: var(--text-muted); font-size: 0.9375rem; margin: 0; }
+  .card { background: var(--surface); border-radius: var(--radius-lg); padding: 1.25rem 1.5rem; margin-bottom: 1.25rem; box-shadow: var(--shadow); border: 1px solid var(--border); }
+  .bloque-title { font-size: 1rem; font-weight: 600; color: var(--accent); margin: 0 0 0.75rem; }
+  .bloque-org { margin: 0 0 0.5rem; color: var(--text); }
+  .bloque-line { margin: 0.35rem 0; font-size: 0.9375rem; color: var(--text); }
+  .bloque-text { margin: 0 0 0.75rem; font-size: 0.9375rem; color: var(--text); }
+  .contactos-page a { color: var(--primary); font-weight: 600; }
+  .lista-empresas { margin: 0; padding-left: 1.25rem; }
+  .lista-empresas li { margin-bottom: 0.5rem; font-size: 0.9375rem; color: var(--text); }
+</style>

@@ -1,0 +1,678 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { getSortedPosts } from '../data/blog';
+const latestPosts = getSortedPosts().slice(0, 2);
+---
+<Layout title="Inicio" description="Explora qué ruta de recolección pasa por tu casa o barrio en Dosquebradas.">
+  <div class="inicio">
+    <section class="hero">
+      <h1 class="hero-title">Explora qué ruta de recolección pasa por tu casa o barrio</h1>
+      <p class="hero-subtitle">Consulta días y horarios del camión de reciclaje en Dosquebradas.</p>
+      <form class="buscador" id="form-busqueda" role="search">
+        <label for="input-busqueda" class="sr-only">Barrio o dirección</label>
+        <input
+          type="search"
+          id="input-busqueda"
+          class="input"
+          placeholder="Ej: Buenos Aires, La Pradera, Guadalupe…"
+          autocomplete="off"
+          aria-describedby="ayuda-busqueda"
+        />
+        <button type="submit" class="btn">Buscar</button>
+      </form>
+      <p id="ayuda-busqueda" class="ayuda">Escribe el nombre de tu barrio o una dirección para ver las rutas.</p>
+    </section>
+
+    <div id="resultados" class="resultados card" aria-live="polite" hidden></div>
+    <div id="mapa-container" class="mapa-container card" hidden>
+      <p class="mapa-leyenda">Tu barrio (marcador) y recorrido del camión en el mapa. Si hay varias rutas, cada una se muestra con un color distinto.</p>
+      <div id="mapa" class="mapa"></div>
+      <div id="mapa-leyenda-rutas" class="mapa-leyenda-rutas" aria-label="Correspondencia de colores con las rutas" hidden></div>
+      <p class="mapa-aviso" id="mapa-aviso">El trazado del recorrido se muestra cuando hay datos de rutas disponibles.</p>
+    </div>
+    <div id="sin-resultados" class="sin-resultados card" hidden>
+      <p id="mensaje-sin-resultados"><strong>No hay ruta de reciclaje registrada para ese barrio o dirección.</strong></p>
+      <p id="mensaje-mas-cercana" class="mas-cercana" aria-live="polite"></p>
+      <p>Consulta con la secretaría: <a href="/contactos">ver contactos</a>.</p>
+    </div>
+
+    <section class="articulos-preview" aria-labelledby="titulo-articulos">
+      <div class="articulos-preview-header">
+        <h2 id="titulo-articulos" class="articulos-preview-title">Artículos y consejos</h2>
+        <a href="/blog" class="articulos-preview-link">Ver todos</a>
+      </div>
+      <div class="articulos-preview-grid">
+        {latestPosts.map((post) => (
+          <a href={`/blog/${post.slug}`} class="articulo-mini card">
+            <div class="articulo-mini-img-wrap">
+              <img src={post.image} alt={post.imageAlt} width="400" height="200" class="articulo-mini-img" loading="lazy" />
+            </div>
+            <div class="articulo-mini-body">
+              <time class="articulo-mini-date" datetime={post.date}>
+                {new Date(post.date).toLocaleDateString('es-CO', { day: 'numeric', month: 'short' })}
+              </time>
+              <h3 class="articulo-mini-title">{post.title}</h3>
+            </div>
+          </a>
+        ))}
+      </div>
+    </section>
+  </div>
+
+  <script define:vars={{}}>
+    (function () {
+      const form = document.getElementById('form-busqueda');
+      const input = document.getElementById('input-busqueda');
+      const resultadosEl = document.getElementById('resultados');
+      const mapaContainer = document.getElementById('mapa-container');
+      const sinResultados = document.getElementById('sin-resultados');
+      let map = null;
+      let mapInitialized = false;
+
+      const DOSQUEBRADAS = [4.8342, -75.6906];
+      const ZOOM = 14;
+      let markersLayer = null;
+      let routesLayer = null;
+      let routePolylineRefs = [];
+      let selectedRouteIndex = -1;
+
+      function normalize(s) {
+        return (s || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
+      }
+
+      function searchRutas(rutas, query) {
+        const q = normalize(query);
+        if (!q) return [];
+        return rutas.filter(function (r) {
+          const matchBarrio = (r.barriosNormalizados || []).some(function (b) { return b.indexOf(q) !== -1 || q.indexOf(b) !== -1; });
+          const matchNombre = normalize(r.nombreRuta || '').indexOf(q) !== -1;
+          const matchEmpresa = normalize(r.empresa || '').indexOf(q) !== -1;
+          const matchComuna = normalize(r.comuna || '').indexOf(q) !== -1;
+          return matchBarrio || matchNombre || matchEmpresa || matchComuna;
+        });
+      }
+
+      function clearMapLayers() {
+        const L = window.L;
+        if (!L || !map) return;
+        routePolylineRefs = [];
+        selectedRouteIndex = -1;
+        if (markersLayer) { map.removeLayer(markersLayer); markersLayer = null; }
+        if (routesLayer) { map.removeLayer(routesLayer); routesLayer = null; }
+      }
+
+      function addMarker(center, title) {
+        const L = window.L;
+        if (!L || !map) return;
+        if (!markersLayer) { markersLayer = L.layerGroup().addTo(map); }
+        const icon = L.divIcon({ className: 'marker-tu-barrio', html: '📍', iconSize: [28, 28] });
+        L.marker(center, { icon: icon }).addTo(markersLayer).bindPopup(title || 'Tu barrio / zona de búsqueda');
+      }
+
+      function drawRouteLayer(geojson, barriosNormalizados, resultCount, listaRutas) {
+        const L = window.L;
+        if (!L || !map || !geojson || !geojson.features) return;
+        routePolylineRefs = [];
+        selectedRouteIndex = -1;
+        if (!routesLayer) { routesLayer = L.layerGroup().addTo(map); }
+        const qSet = new Set((barriosNormalizados || []).map(function (b) { return b.toLowerCase(); }));
+        const matching = [];
+        geojson.features.forEach(function (f) {
+          const props = f.properties || {};
+          const fb = (props.barrios || []).concat(props.barrio ? [props.barrio] : []);
+          const match = fb.some(function (b) { return qSet.has(String(b).toLowerCase()); });
+          if (match && f.geometry && f.geometry.type === 'LineString' && f.geometry.coordinates) {
+            matching.push(f);
+          }
+        });
+        var routeColors = ['#1565c0', '#c62828', '#6a1b9a', '#00838f', '#ef6c00', '#2e7d32'];
+        var singleColor = '#1b5e3f';
+        var useSingleColor = resultCount === 1;
+        var numCards = (listaRutas && listaRutas.length) ? listaRutas.length : 0;
+        matching.forEach(function (f, idx) {
+          var colorIndex = useSingleColor ? 0 : (numCards > 0 ? idx % numCards : idx);
+          var color = useSingleColor ? singleColor : routeColors[colorIndex % routeColors.length];
+          var latlngs = f.geometry.coordinates.map(function (c) { return [c[1], c[0]]; });
+          var popupText = 'Recorrido del camión';
+          if (listaRutas && listaRutas.length > 0 && listaRutas[colorIndex]) {
+            var r = listaRutas[colorIndex];
+            popupText = (r.empresa || '') + ' — ' + (r.dias || '') + (r.horario ? ', ' + r.horario : '');
+          }
+          var poly = L.polyline(latlngs, { color: color, weight: 5, opacity: 0.8 }).addTo(routesLayer).bindPopup(popupText);
+          routePolylineRefs.push({ layer: poly, colorIndex: colorIndex, color: color });
+          poly.on('click', function () {
+            setSelectedRoute(colorIndex);
+          });
+        });
+      }
+
+      function setSelectedRoute(index) {
+        var prev = selectedRouteIndex;
+        selectedRouteIndex = index;
+        updateRouteHighlight();
+        updateCardsHighlight(index);
+        updateLegendHighlight(index);
+      }
+
+      function updateRouteHighlight() {
+        var isSelected = function (colorIndex) { return selectedRouteIndex >= 0 && colorIndex === selectedRouteIndex; };
+        routePolylineRefs.forEach(function (ref) {
+          if (selectedRouteIndex < 0) {
+            ref.layer.setStyle({ color: ref.color, weight: 5, opacity: 0.8 });
+          } else if (isSelected(ref.colorIndex)) {
+            ref.layer.setStyle({ color: ref.color, weight: 5, opacity: 0.9 });
+          } else {
+            ref.layer.setStyle({ color: ref.color, weight: 3, opacity: 0.5 });
+          }
+        });
+      }
+
+      function updateCardsHighlight(selectedIndex) {
+        var cards = resultadosEl && resultadosEl.querySelectorAll('.tarjeta-ruta');
+        if (!cards || cards.length === 0) return;
+        cards.forEach(function (card, idx) {
+          card.classList.toggle('tarjeta-ruta-seleccionada', selectedIndex >= 0 && idx === selectedIndex);
+          card.classList.toggle('tarjeta-ruta-no-seleccionada', selectedIndex >= 0 && idx !== selectedIndex);
+        });
+      }
+
+      function updateLegendHighlight(selectedIndex) {
+        var list = document.querySelector('.mapa-leyenda-rutas-lista');
+        if (!list) return;
+        var items = list.querySelectorAll('li');
+        items.forEach(function (li, idx) {
+          li.classList.toggle('mapa-leyenda-item-seleccionado', selectedIndex >= 0 && idx === selectedIndex);
+          li.classList.toggle('mapa-leyenda-item-no-seleccionado', selectedIndex >= 0 && idx !== selectedIndex);
+        });
+      }
+
+      function selectRouteFromCard(index) {
+        if (selectedRouteIndex === index) {
+          selectedRouteIndex = -1;
+        } else {
+          selectedRouteIndex = index;
+        }
+        updateRouteHighlight();
+        updateCardsHighlight(selectedRouteIndex);
+        updateLegendHighlight(selectedRouteIndex);
+      }
+
+      function initMap(center) {
+        if (mapInitialized) {
+          map.setView(center, ZOOM);
+          return;
+        }
+        const L = window.L;
+        if (!L) return;
+        map = L.map('mapa').setView(center, ZOOM);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        mapInitialized = true;
+      }
+
+      function showMap(center, queryForGeocode, barriosNormalizados, resultCount, listaRutas) {
+        if (!mapaContainer) return;
+        mapaContainer.hidden = false;
+        clearMapLayers();
+        var legendEl = document.getElementById('mapa-leyenda-rutas');
+        if (legendEl) {
+          legendEl.innerHTML = '';
+          legendEl.hidden = true;
+        }
+        function afterMapReady() {
+          initMap(center);
+          addMarker(center, 'Tu barrio / zona de búsqueda');
+          fetch('/data/recorridos.geojson').then(function (r) { return r.ok ? r.json() : null; }).then(function (geo) {
+            if (geo) { drawRouteLayer(geo, barriosNormalizados, resultCount, listaRutas); document.getElementById('mapa-aviso') && (document.getElementById('mapa-aviso').hidden = true); }
+          }).catch(function () {});
+        }
+        if (window.L) {
+          afterMapReady();
+        } else {
+          const s = document.createElement('script');
+          s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+          s.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+          s.crossOrigin = '';
+          s.onload = function () { afterMapReady(); };
+          document.head.appendChild(s);
+        }
+        if (queryForGeocode && queryForGeocode.length >= 2) {
+          fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(queryForGeocode + ', Dosquebradas, Risaralda, Colombia') + '&format=json&limit=1', { headers: { 'Accept': 'application/json', 'User-Agent': 'RutasReciclajeDosquebradas/1.0 (contacto secretaria)' } })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              if (data && data[0]) {
+                var lat = parseFloat(data[0].lat);
+                var lon = parseFloat(data[0].lon);
+                if (!isNaN(lat) && !isNaN(lon)) {
+                  var pt = [lat, lon];
+                  if (window.L && map) {
+                    map.setView(pt, ZOOM);
+                    clearMapLayers();
+                    addMarker(pt, 'Tu barrio: ' + queryForGeocode);
+                    fetch('/data/recorridos.geojson').then(function (r) { return r.ok ? r.json() : null; }).then(function (geo) {
+                      if (geo) { drawRouteLayer(geo, barriosNormalizados, resultCount, listaRutas); var av = document.getElementById('mapa-aviso'); if (av) av.hidden = true; }
+                    }).catch(function () {});
+                  }
+                }
+              }
+            })
+            .catch(function () {});
+        }
+      }
+
+      function escapeHtml(s) {
+        if (!s) return '';
+        var div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+      }
+      function escapeAttr(s) {
+        if (!s) return '';
+        return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+      }
+
+      function distanceKm(lat1, lon1, lat2, lon2) {
+        var R = 6371;
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLon = (lon2 - lon1) * Math.PI / 180;
+        var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+      }
+
+      function getCentroid(coords) {
+        if (!coords || coords.length === 0) return null;
+        var sumLon = 0, sumLat = 0, n = coords.length;
+        for (var i = 0; i < n; i++) {
+          sumLon += coords[i][0];
+          sumLat += coords[i][1];
+        }
+        return [sumLat / n, sumLon / n];
+      }
+
+      function findClosestRoute(searchLat, searchLon, geojson, rutas) {
+        if (!geojson || !geojson.features || geojson.features.length === 0 || !rutas || rutas.length === 0) return null;
+        var best = { dist: Infinity, feature: null };
+        for (var i = 0; i < geojson.features.length; i++) {
+          var f = geojson.features[i];
+          if (!f.geometry || f.geometry.type !== 'LineString' || !f.geometry.coordinates || f.geometry.coordinates.length < 2) continue;
+          var c = getCentroid(f.geometry.coordinates);
+          if (!c) continue;
+          var d = distanceKm(searchLat, searchLon, c[0], c[1]);
+          if (d < best.dist) { best.dist = d; best.feature = f; }
+        }
+        if (!best.feature) return null;
+        var barrios = (best.feature.properties && best.feature.properties.barrios) || [];
+        if (best.feature.properties && best.feature.properties.barrio) barrios.push(best.feature.properties.barrio);
+        if (barrios.length === 0) return null;
+        for (var j = 0; j < rutas.length; j++) {
+          var r = rutas[j];
+          var barriosR = r.barrios || [];
+          for (var k = 0; k < barrios.length; k++) {
+            var bn = normalize(barrios[k]);
+            var match = (r.barriosNormalizados || []).indexOf(bn) !== -1 || barriosR.some(function(b) { return normalize(b) === bn; });
+            if (match) return { ruta: r, barrioName: barrios[k] };
+          }
+        }
+        return { ruta: null, barrioName: barrios[0] };
+      }
+
+      function updateClosestMessage(rutas, query) {
+        var msgEl = document.getElementById('mensaje-mas-cercana');
+        if (!msgEl) return;
+        msgEl.textContent = 'Buscando la zona más cercana…';
+        msgEl.hidden = false;
+        var geocodeUrl = 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent((query || '').trim() + ', Dosquebradas, Risaralda, Colombia') + '&format=json&limit=1';
+        fetch(geocodeUrl, { headers: { 'Accept': 'application/json', 'User-Agent': 'RutasReciclajeDosquebradas/1.0' } })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var lat = data && data[0] ? parseFloat(data[0].lat) : NaN;
+            var lon = data && data[0] ? parseFloat(data[0].lon) : NaN;
+            if (isNaN(lat) || isNaN(lon)) { msgEl.textContent = ''; msgEl.hidden = true; return; }
+            return fetch('/data/recorridos.geojson').then(function(res) { return res.ok ? res.json() : null; }).then(function(geo) {
+              var closest = findClosestRoute(lat, lon, geo, rutas);
+              if (closest && closest.ruta) {
+                var r = closest.ruta;
+                var barrioEsc = escapeHtml(closest.barrioName);
+                msgEl.innerHTML = 'La zona más cercana con ruta es <strong>' + barrioEsc + '</strong>: ' +
+                  escapeHtml(r.empresa || '') + ', ' + (r.dias ? 'días ' + escapeHtml(r.dias) : '') + (r.horario ? ', horario ' + escapeHtml(r.horario) : '') + '. ' +
+                  '<a href="#" class="link-ver-ruta js-ver-ruta-recomendada" data-barrio="' + escapeAttr(closest.barrioName) + '">Ver esta ruta en el mapa</a>';
+                msgEl.hidden = false;
+              } else if (closest && closest.barrioName) {
+                msgEl.textContent = 'La zona más cercana con datos en el mapa es ' + closest.barrioName + '. Consulta la lista de rutas para días y horarios.';
+              } else {
+                msgEl.textContent = '';
+                msgEl.hidden = true;
+              }
+            });
+          })
+          .catch(function() { msgEl.textContent = ''; msgEl.hidden = true; });
+      }
+
+      function renderResultados(lista, rutas, query) {
+        if (!resultadosEl) return;
+        var barriosNorm = lista.length ? (lista[0].barriosNormalizados || []) : [];
+        if (lista.length) barriosNorm = Array.from(new Set(lista.reduce(function (acc, r) { return acc.concat(r.barriosNormalizados || []); }, [])));
+        if (lista.length === 0) {
+          resultadosEl.hidden = true;
+          if (sinResultados) sinResultados.hidden = false;
+          showMap(DOSQUEBRADAS, query, barriosNorm, 0, []);
+          if (query && query.trim().length >= 2) updateClosestMessage(rutas, query);
+          else { var mc = document.getElementById('mensaje-mas-cercana'); if (mc) { mc.textContent = ''; mc.hidden = true; } }
+          return;
+        }
+        if (sinResultados) sinResultados.hidden = true;
+        resultadosEl.hidden = false;
+        var titulo = query ? 'Por tu barrio (<strong>' + escapeHtml(query) + '</strong>) pasa el camión de reciclaje en estos días y horarios. Anótalos para sacar los residuos:' : 'Rutas encontradas';
+        var routeColors = ['#1565c0', '#c62828', '#6a1b9a', '#00838f', '#ef6c00', '#2e7d32'];
+        var singleColor = '#1b5e3f';
+        resultadosEl.innerHTML = '<h2 class="resultados-titulo">' + titulo + '</h2>' +
+          (lista.length > 1 ? '<p class="resultados-leyenda-colores">Cada color corresponde a una ruta en el mapa.</p>' : '') +
+          '<ul class="lista-rutas">' + lista.map(function (r, idx) {
+          var color = lista.length === 1 ? singleColor : routeColors[idx % routeColors.length];
+          var clickable = lista.length > 1 ? ' tabindex="0" role="button" data-ruta-index="' + idx + '" aria-pressed="false"' : '';
+          return '<li class="tarjeta-ruta' + (lista.length > 1 ? ' tarjeta-ruta-clickable' : '') + '" style="--ruta-color:' + escapeAttr(color) + '"' + clickable + '>' +
+            '<span class="tarjeta-empresa">' + escapeHtml(r.empresa || '') + '</span>' +
+            '<p class="tarjeta-dias"><strong>Días:</strong> ' + escapeHtml(r.dias || '—') + '</p>' +
+            '<p class="tarjeta-horario"><strong>Horario:</strong> ' + escapeHtml(r.horario || '—') + '</p>' +
+            (r.operador ? '<p class="tarjeta-operador"><strong>Reciclador/operador:</strong> ' + escapeHtml(r.operador) + '</p>' : '') +
+            '</li>';
+        }).join('') + '</ul>';
+        showMap(DOSQUEBRADAS, query, barriosNorm, lista.length, lista);
+        var legendEl = document.getElementById('mapa-leyenda-rutas');
+        if (legendEl && lista.length > 1) {
+          var routeColors = ['#1565c0', '#c62828', '#6a1b9a', '#00838f', '#ef6c00', '#2e7d32'];
+          legendEl.innerHTML = '<p class="mapa-leyenda-rutas-titulo">En el mapa cada color es (clic para resaltar):</p><ul class="mapa-leyenda-rutas-lista">' + lista.map(function (r, idx) {
+            var color = routeColors[idx % routeColors.length];
+            return '<li class="mapa-leyenda-item" role="button" tabindex="0" data-ruta-index="' + idx + '"><span class="mapa-leyenda-swatch" style="background:' + escapeAttr(color) + '"></span> ' + escapeHtml(r.empresa || '') + ' — ' + escapeHtml(r.dias || '') + (r.horario ? ', ' + escapeHtml(r.horario) : '') + '</li>';
+          }).join('') + '</ul>';
+          legendEl.hidden = false;
+        } else if (legendEl) {
+          legendEl.hidden = true;
+        }
+      }
+
+      function handleSubmit(e) {
+        e.preventDefault();
+        const query = (input && input.value) ? input.value.trim() : '';
+        if (!query) {
+          if (sinResultados) sinResultados.hidden = false;
+          var msg = document.getElementById('mensaje-sin-resultados');
+          if (msg) msg.innerHTML = '<strong>Escribe un barrio o dirección para buscar.</strong>';
+          var mc = document.getElementById('mensaje-mas-cercana');
+          if (mc) { mc.textContent = ''; mc.hidden = true; }
+          if (resultadosEl) resultadosEl.hidden = true;
+          showMap(DOSQUEBRADAS, '', [], 0, []);
+          return;
+        }
+        fetch('/data/rutas.json')
+          .then(function (res) { return res.json(); })
+          .then(function (rutas) {
+            const lista = searchRutas(rutas, query);
+            renderResultados(lista, rutas, query);
+            var msg = document.getElementById('mensaje-sin-resultados');
+            if (msg && lista.length === 0) msg.innerHTML = '<strong>No hay ruta de reciclaje registrada para ese barrio o dirección.</strong>';
+          })
+          .catch(function () {
+            if (resultadosEl) { resultadosEl.hidden = true; resultadosEl.innerHTML = ''; }
+            if (sinResultados) { sinResultados.hidden = false; sinResultados.querySelector('p').textContent = 'Error al cargar los datos. Intenta de nuevo.'; }
+          });
+      }
+
+      if (form) form.addEventListener('submit', handleSubmit);
+
+      document.addEventListener('click', function(ev) {
+        var link = ev.target && ev.target.closest && ev.target.closest('.js-ver-ruta-recomendada');
+        if (link && link.getAttribute) {
+          var barrio = link.getAttribute('data-barrio');
+          if (barrio && input) {
+            ev.preventDefault();
+            input.value = barrio;
+            if (form) form.requestSubmit();
+          }
+          return;
+        }
+        var card = ev.target && ev.target.closest && ev.target.closest('.tarjeta-ruta-clickable');
+        if (card && card.getAttribute) {
+          var idx = card.getAttribute('data-ruta-index');
+          if (idx !== null) { selectRouteFromCard(parseInt(idx, 10)); }
+          return;
+        }
+        var legendItem = ev.target && ev.target.closest && ev.target.closest('.mapa-leyenda-item');
+        if (legendItem && legendItem.getAttribute) {
+          var idx2 = legendItem.getAttribute('data-ruta-index');
+          if (idx2 !== null) { setSelectedRoute(parseInt(idx2, 10)); }
+        }
+      });
+
+      document.addEventListener('keydown', function(ev) {
+        var card = ev.target && ev.target.closest && ev.target.closest('.tarjeta-ruta-clickable');
+        if (card && (ev.key === 'Enter' || ev.key === ' ')) {
+          ev.preventDefault();
+          var idx = card.getAttribute('data-ruta-index');
+          if (idx !== null) { selectRouteFromCard(parseInt(idx, 10)); }
+        }
+        var legendItem = ev.target && ev.target.closest && ev.target.closest('.mapa-leyenda-item');
+        if (legendItem && (ev.key === 'Enter' || ev.key === ' ')) {
+          ev.preventDefault();
+          var idx2 = legendItem.getAttribute('data-ruta-index');
+          if (idx2 !== null) { setSelectedRoute(parseInt(idx2, 10)); }
+        }
+      });
+    })();
+  </script>
+</Layout>
+
+<style>
+  .inicio { padding: 0 0 3rem; }
+  .hero {
+    text-align: center;
+    padding: 2.5rem 1rem 3rem;
+    margin-bottom: 0.5rem;
+    background: linear-gradient(180deg, var(--mint) 0%, transparent 100%);
+    border-radius: var(--radius-lg);
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+  .hero-title {
+    font-size: clamp(1.625rem, 4vw, 2.125rem);
+    font-weight: 700;
+    color: var(--primary);
+    margin: 0 0 0.5rem;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+  .hero-subtitle {
+    color: var(--text-muted);
+    font-size: 1.0625rem;
+    margin: 0 0 1.75rem;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .buscador {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+    max-width: 520px;
+    margin: 0 auto 0.5rem;
+  }
+  .input {
+    flex: 1;
+    min-width: 220px;
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-family: var(--font);
+    background: var(--surface);
+    color: var(--text);
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .input::placeholder { color: var(--text-muted); opacity: 0.8; }
+  .input:focus {
+    outline: none;
+    border-color: var(--accent-light);
+    box-shadow: 0 0 0 3px rgba(45, 122, 94, 0.15);
+  }
+  .btn {
+    padding: 0.875rem 1.5rem;
+    background: var(--primary);
+    color: var(--surface);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--font);
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+  .btn:hover { background: var(--primary-hover); }
+  .btn:active { transform: scale(0.98); }
+  .ayuda { color: var(--text-muted); font-size: 0.875rem; margin: 0; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); border: 0; }
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .resultados { margin-top: 1.5rem; }
+  .resultados :global(h2) { font-size: 1.125rem; font-weight: 600; color: var(--primary); margin-bottom: 1rem; }
+  .lista-rutas { list-style: none; padding: 0; margin: 0; display: grid; gap: 1.25rem; }
+  .resultados-leyenda-colores {
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    margin: -0.25rem 0 1rem;
+    font-style: italic;
+  }
+  .tarjeta-ruta {
+    background: var(--mint);
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius);
+    border-left: 3px solid var(--ruta-color, var(--accent-light));
+    transition: box-shadow 0.2s;
+  }
+  .tarjeta-ruta:hover { box-shadow: var(--shadow-sm); }
+  .tarjeta-ruta-clickable { cursor: pointer; }
+  .tarjeta-ruta-no-seleccionada {
+    opacity: 0.65;
+    transition: opacity 0.2s;
+  }
+  .tarjeta-ruta-seleccionada {
+    box-shadow: 0 0 0 2px var(--ruta-color);
+    transition: box-shadow 0.2s;
+  }
+  .tarjeta-ruta .tarjeta-empresa {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--ruta-color, var(--accent));
+    font-size: 0.9375rem;
+    margin-bottom: 0.5rem;
+  }
+  .tarjeta-ruta .tarjeta-empresa::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--ruta-color, var(--accent-light));
+    flex-shrink: 0;
+  }
+  .tarjeta-ruta .tarjeta-dias, .tarjeta-ruta .tarjeta-horario, .tarjeta-ruta .tarjeta-operador { margin: 0.35rem 0; font-size: 0.9375rem; color: var(--text); }
+  .tarjeta-ruta .tarjeta-operador { color: var(--text-muted); font-size: 0.875rem; }
+  .resultados-titulo { font-size: 1.0625rem; margin-bottom: 1rem; line-height: 1.4; color: var(--text); }
+  .mapa-container { padding: 1rem 1.25rem; }
+  .mapa-leyenda { margin: 0 0 0.75rem; font-size: 0.875rem; color: var(--primary); font-weight: 500; }
+  .mapa { height: 340px; width: 100%; border-radius: 8px; background: var(--bg); }
+  .mapa-leyenda-rutas {
+    margin: 0.75rem 0 0;
+    padding: 0.75rem 0 0;
+    border-top: 1px solid var(--border);
+  }
+  .mapa-leyenda-rutas-titulo {
+    font-size: 0.8125rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin: 0 0 0.5rem;
+  }
+  .mapa-leyenda-rutas-lista {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+  }
+  .mapa-leyenda-rutas-lista li {
+    font-size: 0.8125rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .mapa-leyenda-item {
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  .mapa-leyenda-item:hover { opacity: 0.85; }
+  .mapa-leyenda-item-no-seleccionado { opacity: 0.6; }
+  .mapa-leyenda-item-seleccionado { font-weight: 600; opacity: 1; }
+  .mapa-leyenda-swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .mapa-aviso { margin: 0.75rem 0 0; font-size: 0.8125rem; color: var(--text-muted); }
+  .sin-resultados { background: #fef9e7; border-color: #f0e6c8; }
+  .sin-resultados a { color: var(--primary); font-weight: 600; }
+  .sin-resultados .mas-cercana { margin-top: 0.75rem; font-size: 0.9375rem; color: var(--primary); }
+  .sin-resultados .mas-cercana:empty { display: none; }
+  .sin-resultados .link-ver-ruta { font-weight: 600; margin-left: 0.25rem; white-space: nowrap; }
+  .sin-resultados .link-ver-ruta:hover { text-decoration: underline; }
+  .articulos-preview { margin-top: 2.5rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+  .articulos-preview-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+  }
+  .articulos-preview-title { font-size: 1.125rem; font-weight: 600; color: var(--primary); margin: 0; }
+  .articulos-preview-link { font-size: 0.9375rem; font-weight: 600; color: var(--accent-light); text-decoration: none; }
+  .articulos-preview-link:hover { text-decoration: underline; }
+  .articulos-preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+  }
+  .articulo-mini {
+    padding: 0;
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .articulo-mini:hover { transform: translateY(-2px); box-shadow: var(--shadow-lg); }
+  .articulo-mini-img-wrap { aspect-ratio: 2/1; overflow: hidden; background: var(--bg); }
+  .articulo-mini-img { width: 100%; height: 100%; object-fit: cover; filter: saturate(0.75) contrast(1.02); }
+  .articulo-mini-body { padding: 1rem 1.25rem; }
+  .articulo-mini-date { font-size: 0.75rem; color: var(--accent-light); font-weight: 500; display: block; margin-bottom: 0.35rem; }
+  .articulo-mini-title { font-size: 0.9375rem; font-weight: 600; color: var(--primary); margin: 0; line-height: 1.35; }
+  @media (max-width: 640px) {
+    .hero { padding: 1.5rem 0 2rem; }
+    .buscador { flex-direction: column; max-width: 100%; }
+    .input { min-width: 100%; }
+  }
+</style>

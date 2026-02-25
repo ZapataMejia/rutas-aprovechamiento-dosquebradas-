@@ -1,0 +1,8 @@
+# Redirecciones para Netlify (plantilla)
+# La versión en uso está en public/_redirects. Añade aquí reglas y copia a public/ si necesitas.
+
+# Ejemplo: página 404 personalizada (crear 404.html en dist si la usas)
+# /404   404.html   404
+
+# Ejemplo: redirigir dominio antiguo
+# /ruta-vieja    /rutas    301

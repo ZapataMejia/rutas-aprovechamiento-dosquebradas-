@@ -1,0 +1,95 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Rutas" description="Todas las rutas de recolección de residuos aprovechables y quién las opera en Dosquebradas.">
+  <div class="rutas-page">
+    <header class="page-header">
+      <h1 class="page-title">Todas las rutas de recolección</h1>
+      <p class="page-intro">Listado por empresa u operador. Consulta días, horarios y barrios.</p>
+    </header>
+    <div id="contenedor-rutas" class="contenedor-rutas" aria-live="polite">
+      <p class="cargando">Cargando rutas…</p>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const cont = document.getElementById('contenedor-rutas');
+      if (!cont) return;
+      fetch('/data/rutas.json')
+        .then(function (res) { return res.json(); })
+        .then(function (rutas) {
+          const byEmpresa = {};
+          rutas.forEach(function (r) {
+            const e = r.empresa || 'Otros';
+            if (!byEmpresa[e]) byEmpresa[e] = [];
+            byEmpresa[e].push(r);
+          });
+          const orden = ['Entorno Limpio', 'Vitapланet', 'Punto Verde', 'SEA Eje Cafetero'];
+          let html = '';
+          orden.forEach(function (empresa) {
+            const lista = byEmpresa[empresa];
+            if (!lista || lista.length === 0) return;
+            html += '<section class="bloque-empresa" aria-labelledby="empresa-' + empresa.replace(/\s/g, '-') + '">';
+            html += '<h2 id="empresa-' + empresa.replace(/\s/g, '-') + '">' + empresa + '</h2>';
+            html += '<ul class="lista-rutas">';
+            lista.forEach(function (r) {
+              const barrios = (r.barrios && r.barrios.length) ? r.barrios.join(', ') : '—';
+              html += '<li class="tarjeta-ruta">';
+              html += '<strong>' + (r.nombreRuta || empresa) + '</strong>';
+              html += '<div class="detalle"><span class="label">Barrios/zonas:</span> ' + barrios + '</div>';
+              html += '<div class="detalle"><span class="label">Comuna:</span> ' + (r.comuna || '—') + '</div>';
+              html += '<div class="detalle"><span class="label">Días:</span> ' + (r.dias || '—') + '</div>';
+              html += '<div class="detalle"><span class="label">Horario:</span> ' + (r.horario || '—') + '</div>';
+              if (r.operador) html += '<div class="detalle"><span class="label">Operador/reciclador:</span> ' + r.operador + '</div>';
+              if (r.recorrido) html += '<details class="recorrido"><summary>Ver recorrido</summary><p>' + r.recorrido + '</p></details>';
+              if (r.sector) html += '<div class="detalle"><span class="label">Sector:</span> ' + r.sector + '</div>';
+              html += '</li>';
+            });
+            html += '</ul></section>';
+          });
+          cont.innerHTML = html || '<p>No hay rutas cargadas.</p>';
+        })
+        .catch(function () {
+          cont.innerHTML = '<p>No se pudieron cargar las rutas. Intenta recargar la página.</p>';
+        });
+    })();
+  </script>
+</Layout>
+
+<style>
+  .rutas-page { padding: 0 0 2rem; }
+  .page-header { margin-bottom: 1.5rem; }
+  .page-title { font-size: clamp(1.375rem, 3vw, 1.75rem); font-weight: 700; color: var(--primary); margin: 0 0 0.35rem; letter-spacing: -0.02em; }
+  .page-intro { color: var(--text-muted); font-size: 0.9375rem; margin: 0; }
+  .contenedor-rutas .cargando { color: var(--text-muted); font-size: 0.9375rem; }
+  .bloque-empresa {
+    margin-bottom: 2rem;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem 1.5rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border);
+  }
+  .bloque-empresa h2 {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--accent);
+    margin: 0 0 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--mint);
+  }
+  .lista-rutas { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.75rem; }
+  .tarjeta-ruta {
+    background: var(--mint);
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius);
+    border-left: 4px solid var(--accent-light);
+    transition: box-shadow 0.2s;
+  }
+  .tarjeta-ruta:hover { box-shadow: var(--shadow-sm); }
+  .tarjeta-ruta .detalle { font-size: 0.9375rem; margin-top: 0.35rem; color: var(--text); }
+  .tarjeta-ruta .label { font-weight: 600; color: var(--text-muted); }
+  .recorrido { margin-top: 0.5rem; font-size: 0.875rem; color: var(--text-muted); }
+  .recorrido summary { cursor: pointer; }
+</style>

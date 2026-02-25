@@ -1,0 +1,16 @@
+{
+  "name": "rutas-reciclaje-dosquebradas",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "data": "node scripts/build-rutas.js && node scripts/kmz-to-geojson.js",
+    "dev": "npm run data && npx astro dev",
+    "build": "npm run data && npx astro build",
+    "preview": "npx astro preview"
+  },
+  "dependencies": {
+    "astro": "^4.16.0",
+    "leaflet": "^1.9.4"
+  },
+  "devDependencies": {}
+}

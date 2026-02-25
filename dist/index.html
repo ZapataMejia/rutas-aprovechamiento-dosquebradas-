@@ -1,0 +1,279 @@
+<!DOCTYPE html><html lang="es"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Explora qué ruta de recolección pasa por tu casa o barrio en Dosquebradas."><link rel="icon" type="image/jpeg" href="/alcadiaDosquebradas.jpeg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet"><title>Inicio | Rutas de reciclaje Dosquebradas</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""><style>:root{--primary: #0d3b2c;--primary-hover: #0f4734;--accent: #1a5c42;--accent-light: #2d7a5e;--mint: #e8f5ef;--surface: #ffffff;--bg: #f6f9f8;--text: #1a1a1a;--text-muted: #5c6b6a;--border: #e2e8e6;--shadow-sm: 0 1px 3px rgba(13, 59, 44, .06);--shadow: 0 4px 20px rgba(13, 59, 44, .08);--shadow-lg: 0 12px 40px rgba(13, 59, 44, .1);--radius: 12px;--radius-lg: 16px;--font: "DM Sans", system-ui, -apple-system, sans-serif}*{box-sizing:border-box}body{margin:0;font-family:var(--font);color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}.header{background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)}.header-inner{max-width:1100px;margin:0 auto;padding:.875rem 1.5rem;display:flex;align-items:center;justify-content:space-between}.logo-link{display:flex;align-items:center}.logo{height:48px;width:auto;object-fit:contain;border-radius:6px}.nav{display:flex;gap:2rem}.nav-link{color:var(--text-muted);text-decoration:none;font-weight:500;font-size:.9375rem;transition:color .2s}.nav-link:hover{color:var(--primary)}.main{min-height:calc(100vh - 160px);padding:2rem 1.5rem;max-width:1100px;margin:0 auto}.footer{background:var(--primary);color:var(--surface);padding:1.25rem 1.5rem;font-size:.875rem;color:#ffffffe6}.footer-inner{max-width:1100px;margin:0 auto;text-align:center}@media (max-width: 640px){.header-inner{padding:.75rem 1rem}.nav{gap:1.25rem}.logo{height:40px}}
+</style>
+<link rel="stylesheet" href="/_astro/index.Binoo9PT.css"></head> <body> <header class="header"> <div class="header-inner"> <a href="/" class="logo-link" aria-label="Inicio"> <img src="/alcadiaDosquebradas.jpeg" alt="Logo Alcaldía de Dosquebradas" class="logo" width="72" height="86"> </a> <nav class="nav" aria-label="Principal"> <a href="/" class="nav-link">Inicio</a> <a href="/rutas" class="nav-link">Rutas</a> <a href="/blog" class="nav-link">Artículos</a> <a href="/contactos" class="nav-link">Contactos</a> </nav> </div> </header> <main class="main">  <div class="inicio" data-astro-cid-j7pv25f6> <section class="hero" data-astro-cid-j7pv25f6> <h1 class="hero-title" data-astro-cid-j7pv25f6>Explora qué ruta de recolección pasa por tu casa o barrio</h1> <p class="hero-subtitle" data-astro-cid-j7pv25f6>Consulta días y horarios del camión de reciclaje en Dosquebradas.</p> <form class="buscador" id="form-busqueda" role="search" data-astro-cid-j7pv25f6> <label for="input-busqueda" class="sr-only" data-astro-cid-j7pv25f6>Barrio o dirección</label> <input type="search" id="input-busqueda" class="input" placeholder="Ej: Buenos Aires, La Pradera, Guadalupe…" autocomplete="off" aria-describedby="ayuda-busqueda" data-astro-cid-j7pv25f6> <button type="submit" class="btn" data-astro-cid-j7pv25f6>Buscar</button> </form> <p id="ayuda-busqueda" class="ayuda" data-astro-cid-j7pv25f6>Escribe el nombre de tu barrio o una dirección para ver las rutas.</p> </section> <div id="resultados" class="resultados card" aria-live="polite" hidden data-astro-cid-j7pv25f6></div> <div id="mapa-container" class="mapa-container card" hidden data-astro-cid-j7pv25f6> <p class="mapa-leyenda" data-astro-cid-j7pv25f6>Tu barrio (marcador) y recorrido del camión en el mapa.</p> <div id="mapa" class="mapa" data-astro-cid-j7pv25f6></div> <p class="mapa-aviso" id="mapa-aviso" data-astro-cid-j7pv25f6>El trazado del recorrido se muestra cuando hay datos de rutas disponibles.</p> </div> <div id="sin-resultados" class="sin-resultados card" hidden data-astro-cid-j7pv25f6> <p id="mensaje-sin-resultados" data-astro-cid-j7pv25f6><strong data-astro-cid-j7pv25f6>No hay ruta de reciclaje registrada para ese barrio o dirección.</strong></p> <p id="mensaje-mas-cercana" class="mas-cercana" aria-live="polite" data-astro-cid-j7pv25f6></p> <p data-astro-cid-j7pv25f6>Consulta con la secretaría: <a href="/contactos" data-astro-cid-j7pv25f6>ver contactos</a>.</p> </div> <section class="articulos-preview" aria-labelledby="titulo-articulos" data-astro-cid-j7pv25f6> <div class="articulos-preview-header" data-astro-cid-j7pv25f6> <h2 id="titulo-articulos" class="articulos-preview-title" data-astro-cid-j7pv25f6>Artículos y consejos</h2> <a href="/blog" class="articulos-preview-link" data-astro-cid-j7pv25f6>Ver todos</a> </div> <div class="articulos-preview-grid" data-astro-cid-j7pv25f6> <a href="/blog/separacion-en-la-fuente" class="articulo-mini card" data-astro-cid-j7pv25f6> <div class="articulo-mini-img-wrap" data-astro-cid-j7pv25f6> <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80" alt="Ambiente natural, separación y cuidado del entorno" width="400" height="200" class="articulo-mini-img" loading="lazy" data-astro-cid-j7pv25f6> </div> <div class="articulo-mini-body" data-astro-cid-j7pv25f6> <time class="articulo-mini-date" datetime="2025-02-15" data-astro-cid-j7pv25f6> 14 de feb </time> <h3 class="articulo-mini-title" data-astro-cid-j7pv25f6>Separación en la fuente: el primer paso</h3> </div> </a><a href="/blog/que-depositar-en-la-ruta" class="articulo-mini card" data-astro-cid-j7pv25f6> <div class="articulo-mini-img-wrap" data-astro-cid-j7pv25f6> <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&q=80" alt="Materiales y entorno para el reciclaje" width="400" height="200" class="articulo-mini-img" loading="lazy" data-astro-cid-j7pv25f6> </div> <div class="articulo-mini-body" data-astro-cid-j7pv25f6> <time class="articulo-mini-date" datetime="2025-02-12" data-astro-cid-j7pv25f6> 11 de feb </time> <h3 class="articulo-mini-title" data-astro-cid-j7pv25f6>¿Qué depositar en la ruta de reciclaje?</h3> </div> </a> </div> </section> </div> <script>(function(){
+    (function () {
+      const form = document.getElementById('form-busqueda');
+      const input = document.getElementById('input-busqueda');
+      const resultadosEl = document.getElementById('resultados');
+      const mapaContainer = document.getElementById('mapa-container');
+      const sinResultados = document.getElementById('sin-resultados');
+      let map = null;
+      let mapInitialized = false;
+
+      const DOSQUEBRADAS = [4.8342, -75.6906];
+      const ZOOM = 14;
+      let markersLayer = null;
+      let routesLayer = null;
+
+      function normalize(s) {
+        return (s || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
+      }
+
+      function searchRutas(rutas, query) {
+        const q = normalize(query);
+        if (!q) return [];
+        return rutas.filter(function (r) {
+          const matchBarrio = (r.barriosNormalizados || []).some(function (b) { return b.indexOf(q) !== -1 || q.indexOf(b) !== -1; });
+          const matchNombre = normalize(r.nombreRuta || '').indexOf(q) !== -1;
+          const matchEmpresa = normalize(r.empresa || '').indexOf(q) !== -1;
+          const matchComuna = normalize(r.comuna || '').indexOf(q) !== -1;
+          return matchBarrio || matchNombre || matchEmpresa || matchComuna;
+        });
+      }
+
+      function clearMapLayers() {
+        const L = window.L;
+        if (!L || !map) return;
+        if (markersLayer) { map.removeLayer(markersLayer); markersLayer = null; }
+        if (routesLayer) { map.removeLayer(routesLayer); routesLayer = null; }
+      }
+
+      function addMarker(center, title) {
+        const L = window.L;
+        if (!L || !map) return;
+        if (!markersLayer) { markersLayer = L.layerGroup().addTo(map); }
+        const icon = L.divIcon({ className: 'marker-tu-barrio', html: '📍', iconSize: [28, 28] });
+        L.marker(center, { icon: icon }).addTo(markersLayer).bindPopup(title || 'Tu barrio / zona de búsqueda');
+      }
+
+      function drawRouteLayer(geojson, barriosNormalizados) {
+        const L = window.L;
+        if (!L || !map || !geojson || !geojson.features) return;
+        if (!routesLayer) { routesLayer = L.layerGroup().addTo(map); }
+        const qSet = new Set((barriosNormalizados || []).map(function (b) { return b.toLowerCase(); }));
+        geojson.features.forEach(function (f) {
+          const props = f.properties || {};
+          const fb = (props.barrios || []).concat(props.barrio ? [props.barrio] : []);
+          const match = fb.some(function (b) { return qSet.has(String(b).toLowerCase()); });
+          if (match && f.geometry && f.geometry.type === 'LineString' && f.geometry.coordinates) {
+            const latlngs = f.geometry.coordinates.map(function (c) { return [c[1], c[0]]; });
+            L.polyline(latlngs, { color: '#1b5e3f', weight: 5, opacity: 0.8 }).addTo(routesLayer).bindPopup('Recorrido del camión');
+          }
+        });
+      }
+
+      function initMap(center) {
+        if (mapInitialized) {
+          map.setView(center, ZOOM);
+          return;
+        }
+        const L = window.L;
+        if (!L) return;
+        map = L.map('mapa').setView(center, ZOOM);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+        }).addTo(map);
+        mapInitialized = true;
+      }
+
+      function showMap(center, queryForGeocode, barriosNormalizados) {
+        if (!mapaContainer) return;
+        mapaContainer.hidden = false;
+        clearMapLayers();
+        function afterMapReady() {
+          initMap(center);
+          addMarker(center, 'Tu barrio / zona de búsqueda');
+          fetch('/data/recorridos.geojson').then(function (r) { return r.ok ? r.json() : null; }).then(function (geo) {
+            if (geo) { drawRouteLayer(geo, barriosNormalizados); document.getElementById('mapa-aviso') && (document.getElementById('mapa-aviso').hidden = true); }
+          }).catch(function () {});
+        }
+        if (window.L) {
+          afterMapReady();
+        } else {
+          const s = document.createElement('script');
+          s.src = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.js';
+          s.integrity = 'sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=';
+          s.crossOrigin = '';
+          s.onload = function () { afterMapReady(); };
+          document.head.appendChild(s);
+        }
+        if (queryForGeocode && queryForGeocode.length >= 2) {
+          fetch('https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent(queryForGeocode + ', Dosquebradas, Risaralda, Colombia') + '&format=json&limit=1', { headers: { 'Accept': 'application/json', 'User-Agent': 'RutasReciclajeDosquebradas/1.0 (contacto secretaria)' } })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+              if (data && data[0]) {
+                var lat = parseFloat(data[0].lat);
+                var lon = parseFloat(data[0].lon);
+                if (!isNaN(lat) && !isNaN(lon)) {
+                  var pt = [lat, lon];
+                  if (window.L && map) {
+                    map.setView(pt, ZOOM);
+                    clearMapLayers();
+                    addMarker(pt, 'Tu barrio: ' + queryForGeocode);
+                    fetch('/data/recorridos.geojson').then(function (r) { return r.ok ? r.json() : null; }).then(function (geo) {
+                      if (geo) { drawRouteLayer(geo, barriosNormalizados); var av = document.getElementById('mapa-aviso'); if (av) av.hidden = true; }
+                    }).catch(function () {});
+                  }
+                }
+              }
+            })
+            .catch(function () {});
+        }
+      }
+
+      function escapeHtml(s) {
+        if (!s) return '';
+        var div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+      }
+      function escapeAttr(s) {
+        if (!s) return '';
+        return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+      }
+
+      function distanceKm(lat1, lon1, lat2, lon2) {
+        var R = 6371;
+        var dLat = (lat2 - lat1) * Math.PI / 180;
+        var dLon = (lon2 - lon1) * Math.PI / 180;
+        var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+        var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+      }
+
+      function getCentroid(coords) {
+        if (!coords || coords.length === 0) return null;
+        var sumLon = 0, sumLat = 0, n = coords.length;
+        for (var i = 0; i < n; i++) {
+          sumLon += coords[i][0];
+          sumLat += coords[i][1];
+        }
+        return [sumLat / n, sumLon / n];
+      }
+
+      function findClosestRoute(searchLat, searchLon, geojson, rutas) {
+        if (!geojson || !geojson.features || geojson.features.length === 0 || !rutas || rutas.length === 0) return null;
+        var best = { dist: Infinity, feature: null };
+        for (var i = 0; i < geojson.features.length; i++) {
+          var f = geojson.features[i];
+          if (!f.geometry || f.geometry.type !== 'LineString' || !f.geometry.coordinates || f.geometry.coordinates.length < 2) continue;
+          var c = getCentroid(f.geometry.coordinates);
+          if (!c) continue;
+          var d = distanceKm(searchLat, searchLon, c[0], c[1]);
+          if (d < best.dist) { best.dist = d; best.feature = f; }
+        }
+        if (!best.feature) return null;
+        var barrios = (best.feature.properties && best.feature.properties.barrios) || [];
+        if (best.feature.properties && best.feature.properties.barrio) barrios.push(best.feature.properties.barrio);
+        if (barrios.length === 0) return null;
+        for (var j = 0; j < rutas.length; j++) {
+          var r = rutas[j];
+          var barriosR = r.barrios || [];
+          for (var k = 0; k < barrios.length; k++) {
+            var bn = normalize(barrios[k]);
+            var match = (r.barriosNormalizados || []).indexOf(bn) !== -1 || barriosR.some(function(b) { return normalize(b) === bn; });
+            if (match) return { ruta: r, barrioName: barrios[k] };
+          }
+        }
+        return { ruta: null, barrioName: barrios[0] };
+      }
+
+      function updateClosestMessage(rutas, query) {
+        var msgEl = document.getElementById('mensaje-mas-cercana');
+        if (!msgEl) return;
+        msgEl.textContent = 'Buscando la zona más cercana…';
+        msgEl.hidden = false;
+        var geocodeUrl = 'https://nominatim.openstreetmap.org/search?q=' + encodeURIComponent((query || '').trim() + ', Dosquebradas, Risaralda, Colombia') + '&format=json&limit=1';
+        fetch(geocodeUrl, { headers: { 'Accept': 'application/json', 'User-Agent': 'RutasReciclajeDosquebradas/1.0' } })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var lat = data && data[0] ? parseFloat(data[0].lat) : NaN;
+            var lon = data && data[0] ? parseFloat(data[0].lon) : NaN;
+            if (isNaN(lat) || isNaN(lon)) { msgEl.textContent = ''; msgEl.hidden = true; return; }
+            return fetch('/data/recorridos.geojson').then(function(res) { return res.ok ? res.json() : null; }).then(function(geo) {
+              var closest = findClosestRoute(lat, lon, geo, rutas);
+              if (closest && closest.ruta) {
+                var r = closest.ruta;
+                var barrioEsc = escapeHtml(closest.barrioName);
+                msgEl.innerHTML = 'La zona más cercana con ruta es <strong>' + barrioEsc + '</strong>: ' +
+                  escapeHtml(r.empresa || '') + ', ' + (r.dias ? 'días ' + escapeHtml(r.dias) : '') + (r.horario ? ', horario ' + escapeHtml(r.horario) : '') + '. ' +
+                  '<a href="#" class="link-ver-ruta js-ver-ruta-recomendada" data-barrio="' + escapeAttr(closest.barrioName) + '">Ver esta ruta en el mapa</a>';
+                msgEl.hidden = false;
+              } else if (closest && closest.barrioName) {
+                msgEl.textContent = 'La zona más cercana con datos en el mapa es ' + closest.barrioName + '. Consulta la lista de rutas para días y horarios.';
+              } else {
+                msgEl.textContent = '';
+                msgEl.hidden = true;
+              }
+            });
+          })
+          .catch(function() { msgEl.textContent = ''; msgEl.hidden = true; });
+      }
+
+      function renderResultados(lista, rutas, query) {
+        if (!resultadosEl) return;
+        var barriosNorm = lista.length ? (lista[0].barriosNormalizados || []) : [];
+        if (lista.length) barriosNorm = Array.from(new Set(lista.reduce(function (acc, r) { return acc.concat(r.barriosNormalizados || []); }, [])));
+        if (lista.length === 0) {
+          resultadosEl.hidden = true;
+          if (sinResultados) sinResultados.hidden = false;
+          showMap(DOSQUEBRADAS, query, barriosNorm);
+          if (query && query.trim().length >= 2) updateClosestMessage(rutas, query);
+          else { var mc = document.getElementById('mensaje-mas-cercana'); if (mc) { mc.textContent = ''; mc.hidden = true; } }
+          return;
+        }
+        if (sinResultados) sinResultados.hidden = true;
+        resultadosEl.hidden = false;
+        var titulo = query ? 'Por tu barrio (<strong>' + escapeHtml(query) + '</strong>) pasa el camión de reciclaje en estos días y horarios. Anótalos para sacar los residuos:' : 'Rutas encontradas';
+        resultadosEl.innerHTML = '<h2 class="resultados-titulo">' + titulo + '</h2><ul class="lista-rutas">' + lista.map(function (r) {
+          return '<li class="tarjeta-ruta">' +
+            '<span class="tarjeta-empresa">' + escapeHtml(r.empresa || '') + '</span>' +
+            '<p class="tarjeta-dias"><strong>Días:</strong> ' + escapeHtml(r.dias || '—') + '</p>' +
+            '<p class="tarjeta-horario"><strong>Horario:</strong> ' + escapeHtml(r.horario || '—') + '</p>' +
+            (r.operador ? '<p class="tarjeta-operador"><strong>Reciclador/operador:</strong> ' + escapeHtml(r.operador) + '</p>' : '') +
+            '</li>';
+        }).join('') + '</ul>';
+        showMap(DOSQUEBRADAS, query, barriosNorm);
+      }
+
+      function handleSubmit(e) {
+        e.preventDefault();
+        const query = (input && input.value) ? input.value.trim() : '';
+        if (!query) {
+          if (sinResultados) sinResultados.hidden = false;
+          var msg = document.getElementById('mensaje-sin-resultados');
+          if (msg) msg.innerHTML = '<strong>Escribe un barrio o dirección para buscar.</strong>';
+          var mc = document.getElementById('mensaje-mas-cercana');
+          if (mc) { mc.textContent = ''; mc.hidden = true; }
+          if (resultadosEl) resultadosEl.hidden = true;
+          showMap(DOSQUEBRADAS, '', []);
+          return;
+        }
+        fetch('/data/rutas.json')
+          .then(function (res) { return res.json(); })
+          .then(function (rutas) {
+            const lista = searchRutas(rutas, query);
+            renderResultados(lista, rutas, query);
+            var msg = document.getElementById('mensaje-sin-resultados');
+            if (msg && lista.length === 0) msg.innerHTML = '<strong>No hay ruta de reciclaje registrada para ese barrio o dirección.</strong>';
+          })
+          .catch(function () {
+            if (resultadosEl) { resultadosEl.hidden = true; resultadosEl.innerHTML = ''; }
+            if (sinResultados) { sinResultados.hidden = false; sinResultados.querySelector('p').textContent = 'Error al cargar los datos. Intenta de nuevo.'; }
+          });
+      }
+
+      if (form) form.addEventListener('submit', handleSubmit);
+
+      document.addEventListener('click', function(ev) {
+        var link = ev.target && ev.target.closest && ev.target.closest('.js-ver-ruta-recomendada');
+        if (!link || !link.getAttribute) return;
+        var barrio = link.getAttribute('data-barrio');
+        if (!barrio || !input) return;
+        ev.preventDefault();
+        input.value = barrio;
+        if (form) form.requestSubmit();
+      });
+    })();
+  })();</script>  </main> <footer class="footer"> <div class="footer-inner"> <p>Secretaría de Desarrollo agropecuario y gestión ambiental · Dosquebradas</p> </div> </footer> </body></html> 

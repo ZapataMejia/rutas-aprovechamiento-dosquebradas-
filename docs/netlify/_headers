@@ -1,0 +1,9 @@
+# Cabeceras HTTP para Netlify (plantilla)
+# La versión en uso está en public/_headers y se copia a dist/ en cada build
+
+# Cache para datos y assets estáticos
+/data/*
+  Cache-Control: public, max-age=3600
+
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
