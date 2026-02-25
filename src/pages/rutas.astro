@@ -25,7 +25,7 @@ import Layout from '../layouts/Layout.astro';
             if (!byEmpresa[e]) byEmpresa[e] = [];
             byEmpresa[e].push(r);
           });
-          const orden = ['Entorno Limpio', 'Vitapланet', 'Punto Verde', 'SEA Eje Cafetero'];
+          const orden = ['Entorno Limpio', 'Vitapланet', 'Punto Verde', 'SEA Eje Cafetero', 'ASORPEREIRA', 'Fundambienta'];
           let html = '';
           orden.forEach(function (empresa) {
             const lista = byEmpresa[empresa];

@@ -1,6 +1,6 @@
 <!DOCTYPE html><html lang="es"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="description" content="Explora qué ruta de recolección pasa por tu casa o barrio en Dosquebradas."><link rel="icon" type="image/jpeg" href="/alcadiaDosquebradas.jpeg"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet"><title>Inicio | Rutas de reciclaje Dosquebradas</title><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""><style>:root{--primary: #0d3b2c;--primary-hover: #0f4734;--accent: #1a5c42;--accent-light: #2d7a5e;--mint: #e8f5ef;--surface: #ffffff;--bg: #f6f9f8;--text: #1a1a1a;--text-muted: #5c6b6a;--border: #e2e8e6;--shadow-sm: 0 1px 3px rgba(13, 59, 44, .06);--shadow: 0 4px 20px rgba(13, 59, 44, .08);--shadow-lg: 0 12px 40px rgba(13, 59, 44, .1);--radius: 12px;--radius-lg: 16px;--font: "DM Sans", system-ui, -apple-system, sans-serif}*{box-sizing:border-box}body{margin:0;font-family:var(--font);color:var(--text);background:var(--bg);line-height:1.6;-webkit-font-smoothing:antialiased}.header{background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow-sm)}.header-inner{max-width:1100px;margin:0 auto;padding:.875rem 1.5rem;display:flex;align-items:center;justify-content:space-between}.logo-link{display:flex;align-items:center}.logo{height:48px;width:auto;object-fit:contain;border-radius:6px}.nav{display:flex;gap:2rem}.nav-link{color:var(--text-muted);text-decoration:none;font-weight:500;font-size:.9375rem;transition:color .2s}.nav-link:hover{color:var(--primary)}.main{min-height:calc(100vh - 160px);padding:2rem 1.5rem;max-width:1100px;margin:0 auto}.footer{background:var(--primary);color:var(--surface);padding:1.25rem 1.5rem;font-size:.875rem;color:#ffffffe6}.footer-inner{max-width:1100px;margin:0 auto;text-align:center}@media (max-width: 640px){.header-inner{padding:.75rem 1rem}.nav{gap:1.25rem}.logo{height:40px}}
 </style>
-<link rel="stylesheet" href="/_astro/index.Binoo9PT.css"></head> <body> <header class="header"> <div class="header-inner"> <a href="/" class="logo-link" aria-label="Inicio"> <img src="/alcadiaDosquebradas.jpeg" alt="Logo Alcaldía de Dosquebradas" class="logo" width="72" height="86"> </a> <nav class="nav" aria-label="Principal"> <a href="/" class="nav-link">Inicio</a> <a href="/rutas" class="nav-link">Rutas</a> <a href="/blog" class="nav-link">Artículos</a> <a href="/contactos" class="nav-link">Contactos</a> </nav> </div> </header> <main class="main">  <div class="inicio" data-astro-cid-j7pv25f6> <section class="hero" data-astro-cid-j7pv25f6> <h1 class="hero-title" data-astro-cid-j7pv25f6>Explora qué ruta de recolección pasa por tu casa o barrio</h1> <p class="hero-subtitle" data-astro-cid-j7pv25f6>Consulta días y horarios del camión de reciclaje en Dosquebradas.</p> <form class="buscador" id="form-busqueda" role="search" data-astro-cid-j7pv25f6> <label for="input-busqueda" class="sr-only" data-astro-cid-j7pv25f6>Barrio o dirección</label> <input type="search" id="input-busqueda" class="input" placeholder="Ej: Buenos Aires, La Pradera, Guadalupe…" autocomplete="off" aria-describedby="ayuda-busqueda" data-astro-cid-j7pv25f6> <button type="submit" class="btn" data-astro-cid-j7pv25f6>Buscar</button> </form> <p id="ayuda-busqueda" class="ayuda" data-astro-cid-j7pv25f6>Escribe el nombre de tu barrio o una dirección para ver las rutas.</p> </section> <div id="resultados" class="resultados card" aria-live="polite" hidden data-astro-cid-j7pv25f6></div> <div id="mapa-container" class="mapa-container card" hidden data-astro-cid-j7pv25f6> <p class="mapa-leyenda" data-astro-cid-j7pv25f6>Tu barrio (marcador) y recorrido del camión en el mapa.</p> <div id="mapa" class="mapa" data-astro-cid-j7pv25f6></div> <p class="mapa-aviso" id="mapa-aviso" data-astro-cid-j7pv25f6>El trazado del recorrido se muestra cuando hay datos de rutas disponibles.</p> </div> <div id="sin-resultados" class="sin-resultados card" hidden data-astro-cid-j7pv25f6> <p id="mensaje-sin-resultados" data-astro-cid-j7pv25f6><strong data-astro-cid-j7pv25f6>No hay ruta de reciclaje registrada para ese barrio o dirección.</strong></p> <p id="mensaje-mas-cercana" class="mas-cercana" aria-live="polite" data-astro-cid-j7pv25f6></p> <p data-astro-cid-j7pv25f6>Consulta con la secretaría: <a href="/contactos" data-astro-cid-j7pv25f6>ver contactos</a>.</p> </div> <section class="articulos-preview" aria-labelledby="titulo-articulos" data-astro-cid-j7pv25f6> <div class="articulos-preview-header" data-astro-cid-j7pv25f6> <h2 id="titulo-articulos" class="articulos-preview-title" data-astro-cid-j7pv25f6>Artículos y consejos</h2> <a href="/blog" class="articulos-preview-link" data-astro-cid-j7pv25f6>Ver todos</a> </div> <div class="articulos-preview-grid" data-astro-cid-j7pv25f6> <a href="/blog/separacion-en-la-fuente" class="articulo-mini card" data-astro-cid-j7pv25f6> <div class="articulo-mini-img-wrap" data-astro-cid-j7pv25f6> <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80" alt="Ambiente natural, separación y cuidado del entorno" width="400" height="200" class="articulo-mini-img" loading="lazy" data-astro-cid-j7pv25f6> </div> <div class="articulo-mini-body" data-astro-cid-j7pv25f6> <time class="articulo-mini-date" datetime="2025-02-15" data-astro-cid-j7pv25f6> 14 de feb </time> <h3 class="articulo-mini-title" data-astro-cid-j7pv25f6>Separación en la fuente: el primer paso</h3> </div> </a><a href="/blog/que-depositar-en-la-ruta" class="articulo-mini card" data-astro-cid-j7pv25f6> <div class="articulo-mini-img-wrap" data-astro-cid-j7pv25f6> <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&q=80" alt="Materiales y entorno para el reciclaje" width="400" height="200" class="articulo-mini-img" loading="lazy" data-astro-cid-j7pv25f6> </div> <div class="articulo-mini-body" data-astro-cid-j7pv25f6> <time class="articulo-mini-date" datetime="2025-02-12" data-astro-cid-j7pv25f6> 11 de feb </time> <h3 class="articulo-mini-title" data-astro-cid-j7pv25f6>¿Qué depositar en la ruta de reciclaje?</h3> </div> </a> </div> </section> </div> <script>(function(){
+<link rel="stylesheet" href="/_astro/index.JyU0ShO3.css"></head> <body> <header class="header"> <div class="header-inner"> <a href="/" class="logo-link" aria-label="Inicio"> <img src="/alcadiaDosquebradas.jpeg" alt="Logo Alcaldía de Dosquebradas" class="logo" width="72" height="86"> </a> <nav class="nav" aria-label="Principal"> <a href="/" class="nav-link">Inicio</a> <a href="/rutas" class="nav-link">Rutas</a> <a href="/blog" class="nav-link">Artículos</a> <a href="/contactos" class="nav-link">Contactos</a> </nav> </div> </header> <main class="main">  <div class="inicio" data-astro-cid-j7pv25f6> <section class="hero" data-astro-cid-j7pv25f6> <h1 class="hero-title" data-astro-cid-j7pv25f6>Explora qué ruta de recolección pasa por tu casa o barrio</h1> <p class="hero-subtitle" data-astro-cid-j7pv25f6>Consulta días y horarios del camión de reciclaje en Dosquebradas.</p> <form class="buscador" id="form-busqueda" role="search" data-astro-cid-j7pv25f6> <label for="input-busqueda" class="sr-only" data-astro-cid-j7pv25f6>Barrio o dirección</label> <input type="search" id="input-busqueda" class="input" placeholder="Ej: Buenos Aires, La Pradera, Guadalupe…" autocomplete="off" aria-describedby="ayuda-busqueda" data-astro-cid-j7pv25f6> <button type="submit" class="btn" data-astro-cid-j7pv25f6>Buscar</button> </form> <p id="ayuda-busqueda" class="ayuda" data-astro-cid-j7pv25f6>Escribe el nombre de tu barrio o una dirección para ver las rutas.</p> </section> <div id="resultados" class="resultados card" aria-live="polite" hidden data-astro-cid-j7pv25f6></div> <div id="mapa-container" class="mapa-container card" hidden data-astro-cid-j7pv25f6> <p class="mapa-leyenda" data-astro-cid-j7pv25f6>Tu barrio (marcador) y recorrido del camión en el mapa. Si hay varias rutas, cada una se muestra con un color distinto.</p> <div id="mapa" class="mapa" data-astro-cid-j7pv25f6></div> <div id="mapa-leyenda-rutas" class="mapa-leyenda-rutas" aria-label="Correspondencia de colores con las rutas" hidden data-astro-cid-j7pv25f6></div> <p class="mapa-aviso" id="mapa-aviso" data-astro-cid-j7pv25f6>El trazado del recorrido se muestra cuando hay datos de rutas disponibles.</p> </div> <div id="sin-resultados" class="sin-resultados card" hidden data-astro-cid-j7pv25f6> <p id="mensaje-sin-resultados" data-astro-cid-j7pv25f6><strong data-astro-cid-j7pv25f6>No hay ruta de reciclaje registrada para ese barrio o dirección.</strong></p> <p id="mensaje-mas-cercana" class="mas-cercana" aria-live="polite" data-astro-cid-j7pv25f6></p> <p data-astro-cid-j7pv25f6>Consulta con la secretaría: <a href="/contactos" data-astro-cid-j7pv25f6>ver contactos</a>.</p> </div> <section class="articulos-preview" aria-labelledby="titulo-articulos" data-astro-cid-j7pv25f6> <div class="articulos-preview-header" data-astro-cid-j7pv25f6> <h2 id="titulo-articulos" class="articulos-preview-title" data-astro-cid-j7pv25f6>Artículos y consejos</h2> <a href="/blog" class="articulos-preview-link" data-astro-cid-j7pv25f6>Ver todos</a> </div> <div class="articulos-preview-grid" data-astro-cid-j7pv25f6> <a href="/blog/separacion-en-la-fuente" class="articulo-mini card" data-astro-cid-j7pv25f6> <div class="articulo-mini-img-wrap" data-astro-cid-j7pv25f6> <img src="https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80" alt="Ambiente natural, separación y cuidado del entorno" width="400" height="200" class="articulo-mini-img" loading="lazy" data-astro-cid-j7pv25f6> </div> <div class="articulo-mini-body" data-astro-cid-j7pv25f6> <time class="articulo-mini-date" datetime="2025-02-15" data-astro-cid-j7pv25f6> 14 de feb </time> <h3 class="articulo-mini-title" data-astro-cid-j7pv25f6>Separación en la fuente: el primer paso</h3> </div> </a><a href="/blog/que-depositar-en-la-ruta" class="articulo-mini card" data-astro-cid-j7pv25f6> <div class="articulo-mini-img-wrap" data-astro-cid-j7pv25f6> <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?w=800&q=80" alt="Materiales y entorno para el reciclaje" width="400" height="200" class="articulo-mini-img" loading="lazy" data-astro-cid-j7pv25f6> </div> <div class="articulo-mini-body" data-astro-cid-j7pv25f6> <time class="articulo-mini-date" datetime="2025-02-12" data-astro-cid-j7pv25f6> 11 de feb </time> <h3 class="articulo-mini-title" data-astro-cid-j7pv25f6>¿Qué depositar en la ruta de reciclaje?</h3> </div> </a> </div> </section> </div> <script>(function(){
     (function () {
       const form = document.getElementById('form-busqueda');
       const input = document.getElementById('input-busqueda');
@@ -14,6 +14,8 @@
       const ZOOM = 14;
       let markersLayer = null;
       let routesLayer = null;
+      let routePolylineRefs = [];
+      let selectedRouteIndex = -1;
 
       function normalize(s) {
         return (s || '').toLowerCase().normalize('NFD').replace(/\p{Diacritic}/gu, '').trim();
@@ -34,6 +36,8 @@
       function clearMapLayers() {
         const L = window.L;
         if (!L || !map) return;
+        routePolylineRefs = [];
+        selectedRouteIndex = -1;
         if (markersLayer) { map.removeLayer(markersLayer); markersLayer = null; }
         if (routesLayer) { map.removeLayer(routesLayer); routesLayer = null; }
       }
@@ -46,20 +50,92 @@
         L.marker(center, { icon: icon }).addTo(markersLayer).bindPopup(title || 'Tu barrio / zona de búsqueda');
       }
 
-      function drawRouteLayer(geojson, barriosNormalizados) {
+      function drawRouteLayer(geojson, barriosNormalizados, resultCount, listaRutas) {
         const L = window.L;
         if (!L || !map || !geojson || !geojson.features) return;
+        routePolylineRefs = [];
+        selectedRouteIndex = -1;
         if (!routesLayer) { routesLayer = L.layerGroup().addTo(map); }
         const qSet = new Set((barriosNormalizados || []).map(function (b) { return b.toLowerCase(); }));
+        const matching = [];
         geojson.features.forEach(function (f) {
           const props = f.properties || {};
           const fb = (props.barrios || []).concat(props.barrio ? [props.barrio] : []);
           const match = fb.some(function (b) { return qSet.has(String(b).toLowerCase()); });
           if (match && f.geometry && f.geometry.type === 'LineString' && f.geometry.coordinates) {
-            const latlngs = f.geometry.coordinates.map(function (c) { return [c[1], c[0]]; });
-            L.polyline(latlngs, { color: '#1b5e3f', weight: 5, opacity: 0.8 }).addTo(routesLayer).bindPopup('Recorrido del camión');
+            matching.push(f);
           }
         });
+        var routeColors = ['#1565c0', '#c62828', '#6a1b9a', '#00838f', '#ef6c00', '#2e7d32'];
+        var singleColor = '#1b5e3f';
+        var useSingleColor = resultCount === 1;
+        var numCards = (listaRutas && listaRutas.length) ? listaRutas.length : 0;
+        matching.forEach(function (f, idx) {
+          var colorIndex = useSingleColor ? 0 : (numCards > 0 ? idx % numCards : idx);
+          var color = useSingleColor ? singleColor : routeColors[colorIndex % routeColors.length];
+          var latlngs = f.geometry.coordinates.map(function (c) { return [c[1], c[0]]; });
+          var popupText = 'Recorrido del camión';
+          if (listaRutas && listaRutas.length > 0 && listaRutas[colorIndex]) {
+            var r = listaRutas[colorIndex];
+            popupText = (r.empresa || '') + ' — ' + (r.dias || '') + (r.horario ? ', ' + r.horario : '');
+          }
+          var poly = L.polyline(latlngs, { color: color, weight: 5, opacity: 0.8 }).addTo(routesLayer).bindPopup(popupText);
+          routePolylineRefs.push({ layer: poly, colorIndex: colorIndex, color: color });
+          poly.on('click', function () {
+            setSelectedRoute(colorIndex);
+          });
+        });
+      }
+
+      function setSelectedRoute(index) {
+        var prev = selectedRouteIndex;
+        selectedRouteIndex = index;
+        updateRouteHighlight();
+        updateCardsHighlight(index);
+        updateLegendHighlight(index);
+      }
+
+      function updateRouteHighlight() {
+        var isSelected = function (colorIndex) { return selectedRouteIndex >= 0 && colorIndex === selectedRouteIndex; };
+        routePolylineRefs.forEach(function (ref) {
+          if (selectedRouteIndex < 0) {
+            ref.layer.setStyle({ color: ref.color, weight: 5, opacity: 0.8 });
+          } else if (isSelected(ref.colorIndex)) {
+            ref.layer.setStyle({ color: ref.color, weight: 5, opacity: 0.9 });
+          } else {
+            ref.layer.setStyle({ color: ref.color, weight: 3, opacity: 0.5 });
+          }
+        });
+      }
+
+      function updateCardsHighlight(selectedIndex) {
+        var cards = resultadosEl && resultadosEl.querySelectorAll('.tarjeta-ruta');
+        if (!cards || cards.length === 0) return;
+        cards.forEach(function (card, idx) {
+          card.classList.toggle('tarjeta-ruta-seleccionada', selectedIndex >= 0 && idx === selectedIndex);
+          card.classList.toggle('tarjeta-ruta-no-seleccionada', selectedIndex >= 0 && idx !== selectedIndex);
+        });
+      }
+
+      function updateLegendHighlight(selectedIndex) {
+        var list = document.querySelector('.mapa-leyenda-rutas-lista');
+        if (!list) return;
+        var items = list.querySelectorAll('li');
+        items.forEach(function (li, idx) {
+          li.classList.toggle('mapa-leyenda-item-seleccionado', selectedIndex >= 0 && idx === selectedIndex);
+          li.classList.toggle('mapa-leyenda-item-no-seleccionado', selectedIndex >= 0 && idx !== selectedIndex);
+        });
+      }
+
+      function selectRouteFromCard(index) {
+        if (selectedRouteIndex === index) {
+          selectedRouteIndex = -1;
+        } else {
+          selectedRouteIndex = index;
+        }
+        updateRouteHighlight();
+        updateCardsHighlight(selectedRouteIndex);
+        updateLegendHighlight(selectedRouteIndex);
       }
 
       function initMap(center) {
@@ -76,15 +152,20 @@
         mapInitialized = true;
       }
 
-      function showMap(center, queryForGeocode, barriosNormalizados) {
+      function showMap(center, queryForGeocode, barriosNormalizados, resultCount, listaRutas) {
         if (!mapaContainer) return;
         mapaContainer.hidden = false;
         clearMapLayers();
+        var legendEl = document.getElementById('mapa-leyenda-rutas');
+        if (legendEl) {
+          legendEl.innerHTML = '';
+          legendEl.hidden = true;
+        }
         function afterMapReady() {
           initMap(center);
           addMarker(center, 'Tu barrio / zona de búsqueda');
           fetch('/data/recorridos.geojson').then(function (r) { return r.ok ? r.json() : null; }).then(function (geo) {
-            if (geo) { drawRouteLayer(geo, barriosNormalizados); document.getElementById('mapa-aviso') && (document.getElementById('mapa-aviso').hidden = true); }
+            if (geo) { drawRouteLayer(geo, barriosNormalizados, resultCount, listaRutas); document.getElementById('mapa-aviso') && (document.getElementById('mapa-aviso').hidden = true); }
           }).catch(function () {});
         }
         if (window.L) {
@@ -111,7 +192,7 @@
                     clearMapLayers();
                     addMarker(pt, 'Tu barrio: ' + queryForGeocode);
                     fetch('/data/recorridos.geojson').then(function (r) { return r.ok ? r.json() : null; }).then(function (geo) {
-                      if (geo) { drawRouteLayer(geo, barriosNormalizados); var av = document.getElementById('mapa-aviso'); if (av) av.hidden = true; }
+                      if (geo) { drawRouteLayer(geo, barriosNormalizados, resultCount, listaRutas); var av = document.getElementById('mapa-aviso'); if (av) av.hidden = true; }
                     }).catch(function () {});
                   }
                 }
@@ -218,7 +299,7 @@
         if (lista.length === 0) {
           resultadosEl.hidden = true;
           if (sinResultados) sinResultados.hidden = false;
-          showMap(DOSQUEBRADAS, query, barriosNorm);
+          showMap(DOSQUEBRADAS, query, barriosNorm, 0, []);
           if (query && query.trim().length >= 2) updateClosestMessage(rutas, query);
           else { var mc = document.getElementById('mensaje-mas-cercana'); if (mc) { mc.textContent = ''; mc.hidden = true; } }
           return;
@@ -226,15 +307,32 @@
         if (sinResultados) sinResultados.hidden = true;
         resultadosEl.hidden = false;
         var titulo = query ? 'Por tu barrio (<strong>' + escapeHtml(query) + '</strong>) pasa el camión de reciclaje en estos días y horarios. Anótalos para sacar los residuos:' : 'Rutas encontradas';
-        resultadosEl.innerHTML = '<h2 class="resultados-titulo">' + titulo + '</h2><ul class="lista-rutas">' + lista.map(function (r) {
-          return '<li class="tarjeta-ruta">' +
+        var routeColors = ['#1565c0', '#c62828', '#6a1b9a', '#00838f', '#ef6c00', '#2e7d32'];
+        var singleColor = '#1b5e3f';
+        resultadosEl.innerHTML = '<h2 class="resultados-titulo">' + titulo + '</h2>' +
+          (lista.length > 1 ? '<p class="resultados-leyenda-colores">Cada color corresponde a una ruta en el mapa.</p>' : '') +
+          '<ul class="lista-rutas">' + lista.map(function (r, idx) {
+          var color = lista.length === 1 ? singleColor : routeColors[idx % routeColors.length];
+          var clickable = lista.length > 1 ? ' tabindex="0" role="button" data-ruta-index="' + idx + '" aria-pressed="false"' : '';
+          return '<li class="tarjeta-ruta' + (lista.length > 1 ? ' tarjeta-ruta-clickable' : '') + '" style="--ruta-color:' + escapeAttr(color) + '"' + clickable + '>' +
             '<span class="tarjeta-empresa">' + escapeHtml(r.empresa || '') + '</span>' +
             '<p class="tarjeta-dias"><strong>Días:</strong> ' + escapeHtml(r.dias || '—') + '</p>' +
             '<p class="tarjeta-horario"><strong>Horario:</strong> ' + escapeHtml(r.horario || '—') + '</p>' +
             (r.operador ? '<p class="tarjeta-operador"><strong>Reciclador/operador:</strong> ' + escapeHtml(r.operador) + '</p>' : '') +
             '</li>';
         }).join('') + '</ul>';
-        showMap(DOSQUEBRADAS, query, barriosNorm);
+        showMap(DOSQUEBRADAS, query, barriosNorm, lista.length, lista);
+        var legendEl = document.getElementById('mapa-leyenda-rutas');
+        if (legendEl && lista.length > 1) {
+          var routeColors = ['#1565c0', '#c62828', '#6a1b9a', '#00838f', '#ef6c00', '#2e7d32'];
+          legendEl.innerHTML = '<p class="mapa-leyenda-rutas-titulo">En el mapa cada color es (clic para resaltar):</p><ul class="mapa-leyenda-rutas-lista">' + lista.map(function (r, idx) {
+            var color = routeColors[idx % routeColors.length];
+            return '<li class="mapa-leyenda-item" role="button" tabindex="0" data-ruta-index="' + idx + '"><span class="mapa-leyenda-swatch" style="background:' + escapeAttr(color) + '"></span> ' + escapeHtml(r.empresa || '') + ' — ' + escapeHtml(r.dias || '') + (r.horario ? ', ' + escapeHtml(r.horario) : '') + '</li>';
+          }).join('') + '</ul>';
+          legendEl.hidden = false;
+        } else if (legendEl) {
+          legendEl.hidden = true;
+        }
       }
 
       function handleSubmit(e) {
@@ -247,7 +345,7 @@
           var mc = document.getElementById('mensaje-mas-cercana');
           if (mc) { mc.textContent = ''; mc.hidden = true; }
           if (resultadosEl) resultadosEl.hidden = true;
-          showMap(DOSQUEBRADAS, '', []);
+          showMap(DOSQUEBRADAS, '', [], 0, []);
           return;
         }
         fetch('/data/rutas.json')
@@ -268,12 +366,41 @@
 
       document.addEventListener('click', function(ev) {
         var link = ev.target && ev.target.closest && ev.target.closest('.js-ver-ruta-recomendada');
-        if (!link || !link.getAttribute) return;
-        var barrio = link.getAttribute('data-barrio');
-        if (!barrio || !input) return;
-        ev.preventDefault();
-        input.value = barrio;
-        if (form) form.requestSubmit();
+        if (link && link.getAttribute) {
+          var barrio = link.getAttribute('data-barrio');
+          if (barrio && input) {
+            ev.preventDefault();
+            input.value = barrio;
+            if (form) form.requestSubmit();
+          }
+          return;
+        }
+        var card = ev.target && ev.target.closest && ev.target.closest('.tarjeta-ruta-clickable');
+        if (card && card.getAttribute) {
+          var idx = card.getAttribute('data-ruta-index');
+          if (idx !== null) { selectRouteFromCard(parseInt(idx, 10)); }
+          return;
+        }
+        var legendItem = ev.target && ev.target.closest && ev.target.closest('.mapa-leyenda-item');
+        if (legendItem && legendItem.getAttribute) {
+          var idx2 = legendItem.getAttribute('data-ruta-index');
+          if (idx2 !== null) { setSelectedRoute(parseInt(idx2, 10)); }
+        }
+      });
+
+      document.addEventListener('keydown', function(ev) {
+        var card = ev.target && ev.target.closest && ev.target.closest('.tarjeta-ruta-clickable');
+        if (card && (ev.key === 'Enter' || ev.key === ' ')) {
+          ev.preventDefault();
+          var idx = card.getAttribute('data-ruta-index');
+          if (idx !== null) { selectRouteFromCard(parseInt(idx, 10)); }
+        }
+        var legendItem = ev.target && ev.target.closest && ev.target.closest('.mapa-leyenda-item');
+        if (legendItem && (ev.key === 'Enter' || ev.key === ' ')) {
+          ev.preventDefault();
+          var idx2 = legendItem.getAttribute('data-ruta-index');
+          if (idx2 !== null) { setSelectedRoute(parseInt(idx2, 10)); }
+        }
       });
     })();
   })();</script>  </main> <footer class="footer"> <div class="footer-inner"> <p>Secretaría de Desarrollo agropecuario y gestión ambiental · Dosquebradas</p> </div> </footer> </body></html> 

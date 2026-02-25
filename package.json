@@ -10,7 +10,7 @@
   },
   "dependencies": {
     "astro": "^4.16.0",
-    "leaflet": "^1.9.4"
-  },
-  "devDependencies": {}
+    "leaflet": "^1.9.4",
+    "xlsx": "^0.18.5"
+  }
 }

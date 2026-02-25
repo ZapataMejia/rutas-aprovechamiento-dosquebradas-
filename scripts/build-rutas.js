@@ -1,10 +1,10 @@
 /**
- * Genera src/data/rutas.json a partir de los 4 CSV.
- * Ejecutar antes de astro build (o en dev leer desde public).
+ * Genera public/data/rutas.json a partir de CSV y Excel (6 empresas).
  */
 import { readFileSync, writeFileSync, mkdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import XLSX from 'xlsx';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = join(__dirname, '..');
@@ -160,6 +160,55 @@ try {
   }
 } catch (e) {
   console.warn('SEA CSV:', e.message);
+}
+
+// ASORPEREIRA (Excel)
+try {
+  const wb = XLSX.readFile(join(datosDir, 'Tabla de atributos rutas_ASORPEREIRA.xlsx'));
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet);
+  for (const r of rows) {
+    const barrioZona = (r['Barrio/Zona'] || '').trim();
+    if (!barrioZona) continue;
+    const barrios = barrioZona.split(/[,.]/).map((b) => b.trim()).filter(Boolean);
+    rutas.push({
+      empresa: 'ASORPEREIRA',
+      nombreRuta: (r['N°ruta'] || '').trim() || 'ASORPEREIRA',
+      barrios,
+      comuna: (r['Comuna'] || '').trim(),
+      dias: (r['Dia de recolección '] || r['Dia de recolección'] || '').trim(),
+      horario: (r['Horario'] || '').trim(),
+      operador: 'ASORPEREIRA',
+      recorrido: (r['Recorrido '] || r['Recorrido'] || '').trim(),
+      barriosNormalizados: barrios.map(normalizeBarrio),
+    });
+  }
+} catch (e) {
+  console.warn('ASORPEREIRA XLSX:', e.message);
+}
+
+// Fundambienta (Excel)
+try {
+  const wb = XLSX.readFile(join(datosDir, 'RUTAS_FUNDAMBIENTA.xlsx'));
+  const sheet = wb.Sheets[wb.SheetNames[0]];
+  const rows = XLSX.utils.sheet_to_json(sheet);
+  for (const r of rows) {
+    const barrio = (r['Barrio'] || '').trim();
+    if (!barrio) continue;
+    const barrios = barrio.split(/[,]/).map((b) => b.trim()).filter(Boolean);
+    rutas.push({
+      empresa: 'Fundambienta',
+      nombreRuta: (r['layer'] || '').trim() || 'Fundambienta',
+      barrios,
+      comuna: (r['Comuna'] || '').trim(),
+      dias: (r['Frecuencia'] || '').trim(),
+      horario: (r['Hora'] || '').trim(),
+      operador: 'Fundambienta',
+      barriosNormalizados: barrios.map(normalizeBarrio),
+    });
+  }
+} catch (e) {
+  console.warn('Fundambienta XLSX:', e.message);
 }
 
 // Expandir barrios en Entorno (cada fila es una ruta con un nombre que puede ser barrio)
